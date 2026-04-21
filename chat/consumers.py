@@ -9,7 +9,7 @@ from .models import Room, Message
 class ChatConsumer(AsyncWebsocketConsumer):
     # Websocket은 request대신 self.scope에 연결 정보가 담기고,
         # self.channel_name으로 연결을 식별함.
-
+ 
     async def connect(self):
         self.room_slug = self.scope['url_route']['kwargs']['room_slug'] #routing.py의 변수
         self.room_group_name = f'chat_{self.room_slug}'

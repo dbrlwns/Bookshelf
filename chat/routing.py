@@ -17,3 +17,4 @@ ws/chat/한글/ -> error
 
 URL 매칭 시 ChatConsumer로 연결 (이때 room_slug 변수도 함께 전송)
 """
+ 

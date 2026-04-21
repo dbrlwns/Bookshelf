@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="POST" action="/users/signup/">
+        {% csrf_token %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {{ form.as_p }}
+        <input type="submit" value="회원가입">
+    </form>
+{% endblock %}

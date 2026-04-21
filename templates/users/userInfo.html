@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" action="/users/userEdit/">
+        {% csrf_token %}
+
+        <div class="row">
+          <!-- Profile Image -->
+          <div class="col-md-3 text-center">
+            {% if user.profile_image %}
+              <img id="profilePreview"
+                   src="{{ user.profile_image.url }}"
+                   class="rounded-circle img-fluid mb-3"
+                   alt="Profile Image"
+                   style="max-width: 150px;">
+            {% else %}
+              <img id="profilePreview"
+                   src="https://img.freepik.com/free-vector/letter-x-dry-brush-stroke-typography-vector_53876-177859.jpg"
+                   class="rounded-circle img-fluid mb-3"
+                   alt="Profile Image"
+                   style="max-width: 150px;">
+            {% endif %}
+
+            <!-- 이미지 수정 -->
+            <div class="mb-3">
+              <label for="profileImage" class="form-label">프로필 이미지 변경</label>
+              <input class="form-control" type="file" id="profileImage" name="profile_image">
+            </div>
+          </div> <!-- /.col-md-3 -->
+
+          <!-- User Info Form -->
+          <div class="col-md-9">
+            <div class="mb-3">
+              <label for="username" class="form-label">사용자명</label>
+              <input type="text" class="form-control" id="username" name="username"
+                     value="{{ user.username }}" readonly>
+            </div>
+
+            <div class="mb-3">
+              <label for="lastName" class="form-label">성</label>
+              <input type="text" class="form-control" id="lastName" name="last_name"
+                     value="{{ user.last_name }}">
+            </div>
+
+            <div class="mb-3">
+              <label for="firstName" class="form-label">이름</label>
+              <input type="text" class="form-control" id="firstName" name="first_name"
+                     value="{{ user.first_name }}">
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">이메일</label>
+              <input type="email" class="form-control" id="email" name="email"
+                     value="{{ user.email }}">
+            </div>
+
+            <div class="mb-3">
+              <label for="dateJoined" class="form-label">가입일</label>
+              <input type="text" class="form-control" id="dateJoined"
+                     value="{{ user.date_joined|date:'Y-m-d' }}" readonly>
+            </div>
+
+            <div class="message">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">저장하기</button>
+            <a href="/" class="btn btn-secondary">취소</a>
+          </div> <!-- /.col-md-9 -->
+
+        </div> <!-- /.row -->
+      </form>
+    </div> <!-- /.card-body -->
+  </div> <!-- /.card -->
+</div> <!-- /.container -->
+{% else %}
+    <p>need to <a href="/users/login/">login</a></p>
+{% endif %}
+
+
+<script>
+document.getElementById('profileImage').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
+{% endblock %}
