@@ -1,16 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form method="POST" action="/users/signup/">
-        {% csrf_token %}
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-danger" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
-        {% endif %}
-        {{ form.as_p }}
-        <input type="submit" value="회원가입">
-    </form>
+  <div class="container mt-5" style="max-width: 400px;">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="mb-4 text-center">Register</h3>
+            <form method="POST" action="/users/signup/">
+            {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">ID</label>
+                    {{ form.username }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label">PW</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">PW(check)</label>
+                    {{ form.password2 }}
+                </div>
+            <input class="btn btn-primary w-100" type="submit" value="회원가입">
+        </form>
+        </div>
+      </div>
+    </div>
+
 {% endblock %}

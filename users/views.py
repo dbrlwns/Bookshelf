@@ -45,6 +45,7 @@ def user_signup(request):
 
                 user = User.objects.create_user(username=username,password=password1)
                 user = authenticate(username=username, password=password1)
+                messages.success(request, 'User created successfully')
 
                 login(request, user)
                 return redirect('/')
@@ -86,8 +87,10 @@ def user_edit(request):
             # profile_image가 User모델의 필드면 .save()가 자동으로 처리
             # print("file: ", request.FILES.get("profile_image"))
             form.save()
+            messages.success(request, 'Revision successfully updated')
             return redirect("/users/userinfo/")
         else:
+            messages.error(request, 'Something went wrong')
             return HttpResponseForbidden(f"error occured : {form.errors}")
     else: return render(request, "users/userInfo.html")
 

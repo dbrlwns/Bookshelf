@@ -16,9 +16,15 @@ class LoginForm(forms.Form):
 
 
 class SignupForm(forms.Form):
-    username = forms.CharField(min_length=3, max_length=15)
-    password1 = forms.CharField(label="비밀번호" , widget=forms.PasswordInput)
-    password2 = forms.CharField(label="비밀번호 재입력", widget=forms.PasswordInput)
+    username = forms.CharField(min_length=3, max_length=15, widget=forms.TextInput(attrs={
+        'class' : 'login-form form-control form-label',
+    }))
+    password1 = forms.CharField(label="비밀번호" , widget=forms.PasswordInput(attrs={
+        'class' : 'login-form form-control form-label',
+    }))
+    password2 = forms.CharField(label="비밀번호 재입력", widget=forms.PasswordInput(attrs={
+        'class' : 'login-form form-control form-label',
+    }))
 
 
 class RevisionForm(forms.ModelForm):
