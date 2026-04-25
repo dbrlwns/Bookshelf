@@ -28,6 +28,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/', include('chat.urls')),
     path('users/', include('users.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('blog/', include('blogs.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

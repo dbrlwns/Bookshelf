@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ room.name }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     <h1>{{ room.name }}</h1>
 
     <div id="chat-log">
@@ -18,9 +14,14 @@
     <hr>
 
     <div>
-        <input id="nickname-input" type="text" placeholder="닉네임" />
+    {% if user.is_authenticated %}
+        <input id="nickname-input" type="text" placeholder="닉네임" value="{{ user.username }}" hidden/>
+        <span id="">{{ user.username }} : </span>
         <input id="message-input" type="text" placeholder="메시지를 입력하세요" />
         <button id="send-btn">전송</button>
+        {% else %}
+        <p class="small">로그인이 필요합니다.</p>
+    {% endif %}
     </div>
 
     <script>
@@ -64,5 +65,4 @@
             document.getElementById('message-input').value = '';
         };
     </script>
-</body>
-</html>
+{% endblock %}

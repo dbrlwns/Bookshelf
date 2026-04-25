@@ -66,6 +66,7 @@ def user_login(request):
             if user:
                 login(request, user)
                 next_url = request.GET.get('next') or request.POST.get('next') or '/'
+                messages.success(request, 'User successfully logged in')
                 return redirect(next_url)
             else:
                 messages.error(request, 'Username OR password is incorrect')

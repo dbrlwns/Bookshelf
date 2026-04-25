@@ -32,6 +32,9 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
+    'blogs',
+    'ckeditor',
+    'ckeditor_uploader',
     'users',
     'daphne',
     'channels', # 4.x 부터는 runserver로 ASGI가 자동 실행 X, daphne 사용해야함.
@@ -124,6 +127,34 @@ STATIC_URL = 'static/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_FORCE_JPEG_COMPRESSION = True
+CKEDITOR_IMAGE_QUALITY = 70
+CKEDITOR_CONFIGS = {
+    'default': {
+        'height': 600,
+        'width': '100%',
+        'toolbar': [
+            ["Undo", "Redo"],
+            ["Bold", "Italic", "Underline", "Image", "Font", "FontSize"],
+            ["JustifyLeft", "JustifyCenter", "JustifyRight"],
+            ["CodeSnippet"],
+        ],
+        "fontSize_defaultLabel": "20px",
+        'extraPlugins': ','.join([
+            'uploadimage',  # 이미지 업로드
+            'codesnippet',
+        ]),
+        "codeSnippet_theme": "default",
+                "codeSnippet_languages": {
+                    "python": "Python",
+                    "javascript": "JavaScript",
+                    "html": "HTML",
+                    "css": "CSS",
+                },
+    },
+}
 
 ASGI_APPLICATION = 'emerging_tech_test.asgi.application'
 

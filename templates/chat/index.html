@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>채팅방 목록</title>
-</head>
-<body>
-    <h1>채팅방 목록</h1>
+{% extends 'base.html' %}
 
+
+{% block content %}
+    <h1>채팅방 목록</h1>
     {% if rooms %}
         <ul>
             {% for room in rooms %}
@@ -18,5 +14,4 @@
     {% else %}
         <p>개설된 채팅방이 없습니다.</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}
