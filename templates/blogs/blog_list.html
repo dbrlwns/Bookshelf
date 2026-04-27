@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Blogs{% endblock %}
+{% block title %}Django Blogs{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -28,6 +28,66 @@
     .blog-section-title {
         letter-spacing: -0.02em;
         color: var(--bs-emphasis-color);
+    }
+
+    .blog-tag-bar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1rem;
+        background-color: var(--bs-tertiary-bg);
+    }
+
+    .blog-tag-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.14);
+        background-color: rgba(var(--bs-primary-rgb), 0.08);
+        color: #2f5d95;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .blog-tag-link:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+        background-color: rgba(var(--bs-primary-rgb), 0.14);
+        color: #1f4f86;
+    }
+
+    .blog-tag-link.is-active {
+        background-color: #2457a7;
+        border-color: #2457a7;
+        color: #f8fbff;
+    }
+
+    .blog-tag-link.is-all {
+        background-color: rgba(15, 23, 42, 0.08);
+        border-color: rgba(15, 23, 42, 0.1);
+        color: var(--bs-emphasis-color);
+    }
+
+    .blog-card-tags {
+        display: flex;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .blog-card-tag {
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.12);
+        background-color: rgba(var(--bs-primary-rgb), 0.08);
+        color: #33649d;
+        font-weight: 600;
     }
 
     .blog-list-grid {
@@ -105,6 +165,7 @@
     .blog-preview {
         color: var(--bs-secondary-color);
         line-height: 1.75;
+        min-height: 5rem;
     }
 
     .blog-empty {
@@ -124,6 +185,40 @@
     html[data-bs-theme="dark"] .blog-hero-kicker {
         background-color: rgba(255, 255, 255, 0.04);
         border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-bs-theme="dark"] .blog-tag-bar {
+        background-color: #161b22;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-bs-theme="dark"] .blog-tag-link {
+        background-color: rgba(96, 165, 250, 0.12);
+        border-color: rgba(96, 165, 250, 0.18);
+        color: #bfdbfe;
+    }
+
+    html[data-bs-theme="dark"] .blog-tag-link:hover {
+        background-color: rgba(96, 165, 250, 0.18);
+        color: #dbeafe;
+    }
+
+    html[data-bs-theme="dark"] .blog-tag-link.is-active {
+        background-color: #60a5fa;
+        border-color: #60a5fa;
+        color: #08111f;
+    }
+
+    html[data-bs-theme="dark"] .blog-tag-link.is-all {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.84);
+    }
+
+    html[data-bs-theme="dark"] .blog-card-tag {
+        background-color: rgba(96, 165, 250, 0.12);
+        border-color: rgba(96, 165, 250, 0.16);
+        color: #bfdbfe;
     }
 
     html[data-bs-theme="dark"] .blog-card {
@@ -168,14 +263,24 @@
 
 {% block content %}
 <section class="blog-hero">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
             <h1 class="display-6 fw-bold blog-section-title mb-2">Blog Page ({{ blogs | length }})</h1>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'blog_add' %}" class="btn btn-primary px-4">글 작성하기</a>
+            <a href="{% url 'blog_add' %}" class="btn btn-primary px-4">New BLog</a>
         </div>
     </div>
+</section>
+
+<!-- Tag Selection Area -->
+<section class="blog-tag-bar">
+    <a class="badge blog-tag-link is-all {% if not selected_tag %}is-active{% endif %}"
+        href="{% url 'blog_list' %}">All</a>
+    {% for tag in tags %}
+        <a class="badge blog-tag-link {% if selected_tag and selected_tag.id == tag.id %}is-active{% endif %}"
+            href="{% url 'blog_list' %}?tag={{ tag.slug }}"># {{ tag.name }}</a>
+    {% endfor %}
 </section>
 
 {% if blogs %}
@@ -192,8 +297,14 @@
                     <h2 class="h4 fw-semibold mb-3 blog-card-title">{{ blog.title }}</h2>
                     <div class="blog-preview mb-4">{{ blog.content|safe|striptags|truncatechars:180 }}</div>
                     <div class="mt-auto d-flex justify-content-between align-items-center">
-                        <small class="text-body-tertiary">Post #{{ blog.id }}</small>
-                        <span class="btn btn-sm btn-outline-secondary disabled">Read Post</span>
+                        <small class="text-body-tertiary">댓글 ({{ blog.comments.count }})</small>
+                        <div class="blog-card-tags">
+                            {% for tag in blog.tags.all %}
+                                <span class="badge blog-card-tag">#{{ tag.name }}</span>
+                            {% empty %}
+                                <small class="text-body-tertiary">태그 없음</small>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
                 <div class="blog-card-overlay">

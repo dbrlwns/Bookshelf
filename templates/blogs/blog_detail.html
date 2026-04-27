@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ blog.title }}{% endblock %}
+{% block title %}Django Blog-{{ blog.title }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -47,10 +47,163 @@
         border-radius: 1rem;
     }
 
+    .blog-detail-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    .blog-detail-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.14);
+        background-color: rgba(var(--bs-primary-rgb), 0.08);
+        color: #2f5d95;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .blog-detail-tag:hover {
+        transform: translateY(-1px);
+        background-color: rgba(var(--bs-primary-rgb), 0.14);
+        color: #1f4f86;
+    }
+
+    .comment-section {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--bs-border-color);
+    }
+
+    .comment-section-title {
+        color: var(--bs-emphasis-color);
+        letter-spacing: -0.02em;
+    }
+
+    .comment-form-card {
+        border: none;
+        border-radius: 1.25rem;
+        background-color: var(--bs-tertiary-bg);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .comment-form-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .comment-text-input {
+        flex: 1;
+        min-height: 48px;
+        border-radius: 1rem;
+        border: none;
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-body-color);
+        outline: 2px solid rgba(var(--bs-primary-rgb), 0.2);
+        padding: 0.8rem 1rem;
+        transition: outline-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .comment-text-input:focus {
+        outline: 2px solid rgba(var(--bs-primary-rgb), 0.6);
+        box-shadow: 0 0 0 0.3rem rgba(var(--bs-primary-rgb), 0.2);
+    }
+
+    .comment-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .comment-item {
+        border: none;
+        border-radius: 1rem;
+        background-color: var(--bs-tertiary-bg);
+        padding: 1rem 1.1rem;
+    }
+
+    .comment-meta {
+        color: var(--bs-secondary-color);
+        font-size: 0.92rem;
+    }
+
+    .comment-author {
+        color: var(--bs-emphasis-color);
+        font-weight: 700;
+    }
+
+    .comment-content {
+        white-space: pre-wrap;
+        color: var(--bs-body-color);
+        line-height: 1.7;
+    }
+
+    .comment-empty {
+        border: none;
+        border-radius: 1rem;
+        background-color: var(--bs-tertiary-bg);
+        padding: 1.25rem;
+        text-align: center;
+        color: var(--bs-secondary-color);
+    }
+
+    .blog-detail-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
     html[data-bs-theme="dark"] .blog-detail-card {
         background-color: #161b22;
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0 22px 48px rgba(0, 0, 0, 0.32);
+    }
+
+    html[data-bs-theme="dark"] .blog-detail-tag {
+        background-color: rgba(96, 165, 250, 0.12);
+        border-color: rgba(96, 165, 250, 0.18);
+        color: #bfdbfe;
+    }
+
+    html[data-bs-theme="dark"] .blog-detail-tag:hover {
+        background-color: rgba(96, 165, 250, 0.18);
+        color: #dbeafe;
+    }
+
+    html[data-bs-theme="dark"] .comment-form-card,
+    html[data-bs-theme="dark"] .comment-item,
+    html[data-bs-theme="dark"] .comment-empty {
+        background-color: #161b22;
+    }
+
+    html[data-bs-theme="dark"] .comment-text-input {
+        background-color: #161b22;
+        outline-color: rgba(255, 255, 255, 0.14);
+    }
+
+    html[data-bs-theme="dark"] .comment-text-input:focus {
+        outline-color: rgba(var(--bs-primary-rgb), 0.65);
+        box-shadow: 0 0 0 0.3rem rgba(var(--bs-primary-rgb), 0.22);
+    }
+
+    @media (max-width: 576px) {
+        .comment-form-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .comment-form-row .btn {
+            width: 100%;
+        }
     }
 </style>
 {% endblock %}
@@ -58,10 +211,24 @@
 {% block content %}
 <section class="blog-detail-shell">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{% url 'blog_list' %}" class="btn btn-outline-secondary">목록으로</a>
+        <div></div>
+        {% if user == blog.author %}
+            <div class="blog-detail-actions">
+                <a href="{% url 'blog_edit' blog.id %}" class="btn btn-outline-primary">Update</a>
+                <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteBlogModal"
+                >
+                    Delete
+                </button>
+            </div>
+        {% endif %}
     </div>
 
     <article class="card blog-detail-card">
+        <!-- Blog Content -->
         <div class="card-body">
             <div class="blog-detail-meta mb-3">
                 <span>{{ blog.author.username }}</span>
@@ -72,7 +239,195 @@
             <div class="blog-detail-content blog-content">
                 {{ blog.content|safe }}
             </div>
+
+            <div class="blog-detail-tags">
+                {% for tag in blog.tags.all %}
+                    <a href="{% url 'blog_list' %}?tag={{ tag.slug }}" class="badge blog-detail-tag">#{{ tag.name }}</a>
+                {% empty %}
+                    <small class="text-body-tertiary">태그 없음</small>
+                {% endfor %}
+            </div>
+
+            <!-- Comment -->
+            <section class="comment-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h3 fw-bold comment-section-title mb-0">Comment ({{ blog.comments.count }})</h2>
+                </div>
+
+                <form id="comment-form" class="comment-form-card">
+                    {% csrf_token %}
+                    <input type="hidden" id="comment-endpoint" value="{% url 'comment_add' blog.id %}">
+                    <div class="comment-form-row">
+                        <input
+                            type="text"
+                            id="comment-content"
+                            name="content"
+                            class="form-control comment-text-input"
+                            placeholder="{% if user.is_authenticated %}Write your comment...{% else %}Login for Comment{% endif %}"
+                            {% if not user.is_authenticated %}disabled{% endif %}
+                        >
+                        {% if user.is_authenticated %}
+                            <button type="submit" id="comment-submit" class="btn btn-primary px-4">write</button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary px-4">login</a>
+                        {% endif %}
+                    </div>
+                </form>
+
+                <div id="comment-list" class="comment-list">
+                    {% for comment in blog.comments.all %}
+                        <article class="comment-item" data-comment-id="{{ comment.id }}">
+                            <div class="comment-meta mb-2">
+                                <span class="comment-author">{{ comment.author.username }}</span>
+                                <span class="mx-2">·</span>
+                                <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                            </div>
+                            <div class="comment-content">{{ comment.content|linebreaksbr }}</div>
+                        </article>
+                    {% empty %}
+                        <div id="comment-empty" class="comment-empty">
+                            아직 댓글이 없습니다. 첫 댓글을 남겨보세요.
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
         </div>
     </article>
 </section>
+
+{% if user == blog.author %}
+<div class="modal fade" id="deleteBlogModal" tabindex="-1" aria-labelledby="deleteBlogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteBlogModalLabel">You want to delete {{ blog.title }}?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancle</button>
+                <form method="post" action="{% url 'blog_delete' blog.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const commentForm = document.getElementById("comment-form");
+    if (!commentForm) {
+        return;
+    }
+
+    const endpointInput = document.getElementById("comment-endpoint");
+    const contentInput = document.getElementById("comment-content");
+    const commentList = document.getElementById("comment-list");
+    const submitButton = document.getElementById("comment-submit");
+    const csrfToken = commentForm.querySelector("input[name=csrfmiddlewaretoken]")?.value;
+    const commentTitle = document.querySelector(".comment-section-title");
+    const toastContainer = document.querySelector(".toast-container");
+
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showToast(message, type) {
+        if (!toastContainer || !window.bootstrap) {
+            return;
+        }
+
+        const toast = document.createElement("div");
+        toast.className = `toast align-items-center text-bg-${type} border-0 mb-2`;
+        toast.setAttribute("role", "alert");
+        toast.setAttribute("aria-live", "assertive");
+        toast.setAttribute("aria-atomic", "true");
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${escapeHtml(message)}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+        const toastInstance = new bootstrap.Toast(toast, { delay: 2000 });
+        toast.addEventListener("hidden.bs.toast", function () {
+            toast.remove();
+        });
+        toastInstance.show();
+    }
+
+    function updateCommentCount() {
+        const count = commentList.querySelectorAll(".comment-item").length;
+        commentTitle.textContent = `댓글 (${count})`;
+    }
+
+    function createCommentElement(comment) {
+        const article = document.createElement("article");
+        article.className = "comment-item";
+        article.dataset.commentId = comment.id;
+        article.innerHTML = `
+            <div class="comment-meta mb-2">
+                <span class="comment-author">${escapeHtml(comment.author)}</span>
+                <span class="mx-2">·</span>
+                <span>${escapeHtml(comment.created_at)}</span>
+            </div>
+            <div class="comment-content">${escapeHtml(comment.content).replace(/\n/g, "<br>")}</div>
+        `;
+        return article;
+    }
+
+    commentForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const content = contentInput.value.trim();
+        if (!content) {
+            showToast("댓글 내용을 입력해주세요.", "danger");
+            contentInput.focus();
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "등록 중...";
+
+        try {
+            const response = await fetch(endpointInput.value, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({ content }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || "댓글 등록 중 오류가 발생했습니다.");
+            }
+
+            const emptyState = document.getElementById("comment-empty");
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            commentList.appendChild(createCommentElement(data.comment));
+            contentInput.value = "";
+            updateCommentCount();
+            showToast("댓글이 등록되었습니다.", "success");
+        } catch (error) {
+            showToast(error.message || "댓글 등록 중 오류가 발생했습니다.", "danger");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "댓글 등록";
+        }
+    });
+});
+</script>
 {% endblock %}
