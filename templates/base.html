@@ -7,20 +7,99 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+    <style>
+        .site-brand {
+            letter-spacing: -0.03em;
+            color: var(--bs-emphasis-color);
+        }
+
+        .site-brand:hover {
+            color: var(--bs-emphasis-color);
+        }
+
+        .site-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        }
+
+        .site-nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            color: var(--bs-secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        }
+
+        .site-nav-link:hover {
+            background-color: rgba(var(--bs-primary-rgb), 0.08);
+            color: var(--bs-emphasis-color);
+            transform: translateY(-1px);
+        }
+
+        .site-nav-link.is-active {
+            background-color: rgba(var(--bs-primary-rgb), 0.12);
+            color: #2457a7;
+        }
+
+        html[data-bs-theme="dark"] .site-nav-link {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        html[data-bs-theme="dark"] .site-nav-link:hover {
+            background-color: rgba(96, 165, 250, 0.12);
+            color: #e5f0ff;
+        }
+
+        html[data-bs-theme="dark"] .site-nav-link.is-active {
+            background-color: rgba(96, 165, 250, 0.18);
+            color: #bfdbfe;
+        }
+
+        @media (max-width: 576px) {
+            .site-nav {
+                position: static;
+                transform: none;
+                gap: 0.35rem;
+            }
+
+            .site-nav-link {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.92rem;
+            }
+        }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg border-bottom mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">Emerging Tech Test</a>
-            <a class="navbar-item text-decoration-none" href="/chat">Chat</a>&nbsp;
-            <a class="navbar-item text-decoration-none" href="/blog">Blog</a>
-
+    <nav class="navbar border-bottom mb-4">
+        <div class="container position-relative">
+            <!-- Logo -->
+            <a class="navbar-brand fw-bold site-brand" href="/">Emerging Tech Test</a>
+            <!-- Links -->
+            <div class="site-nav">
+                <a class="site-nav-link {% if request.path == '/chat/' or request.path|slice:':6' == '/chat/' %}is-active{% endif %}"
+                    href="/chat">Chat</a>
+                <a class="site-nav-link {% if request.path == '/blog/' or request.path|slice:':6' == '/blog/' %}is-active{% endif %}"
+                    href="/blog">Blog</a>
+                <a class="site-nav-link {% if request.path == '/book/' or request.path|slice:':6' == '/book/' %}is-active{% endif %}"
+                    href="/book">Book</a>
+                <a class="site-nav-link {% if request.path == '/esrgan/' or request.path|slice:':6' == '/esrgan/' %}is-active{% endif %}"
+                    href="/blog">ESRGAN</a>
+            </div>
+            <!-- Profile -->
             <div class="ms-auto d-flex align-items-center gap-2">
                 {% if user.is_authenticated %}
                     <!-- 드롭다운 -->
                     <div class="dropdown">
-
                         <a href="#"
                            class="d-flex align-items-center gap-2 text-decoration-none text-body dropdown-toggle"
                            id="dropdownUser"
@@ -37,7 +116,6 @@
                                  class="rounded-circle"
                                  style="width:35px; height:35px; object-fit:cover;">
                             {% endif %}
-
                             <span class="fw-semibold">hello, {{ user.username }}</span>
                         </a>
 
@@ -75,7 +153,17 @@
 
     <div class="container">
         {% block content %}{% endblock %}
-        해볼거 : tinyMCE custom, ESRGAN model test, highlight.js 사용
+        hav todo things : room.html에 다른 사용자에 맞는 프로필이미지 표시, 태그 추가 설정
+
+        MVP 기능 우선순위는 저는 이렇게 잡고 싶어요.<br />
+/book 메인 검색 페이지<br />
+외부 도서 API 검색<br />
+책 상세 페이지<br />
+책을 DB에 저장<br />
+블로그 글 작성 시 책 연결<br />
+책 상세에서 관련 블로그 글 목록 표시<br />
+베스트셀러/추천 도서 카드<br />
+글쓰기 질문 추천 AI<br />
     </div>
 
     <!-- message area -->

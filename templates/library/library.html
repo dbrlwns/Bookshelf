@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Library{% endblock %}
+
+{% block content %}
+<section class="py-5 text-center">
+    <h1 class="display-5 fw-bold mb-4">Book</h1>
+    <form method="get" action="{% url 'book_home' %}" class="mx-auto" style="max-width: 680px;">
+        <!-- method가 get이면 input 태그의 name에 맞는 쿼리 파라미터를 전달함. -->
+        <div class="input-group input-group-lg">
+            <input
+                type="search"
+                name="q"
+                value="{{ query }}"
+                class="form-control"
+                placeholder="도서명, 저자, ISBN으로 검색"
+                aria-label="도서 검색"
+            >
+            <button class="btn btn-primary" type="submit">검색</button>
+        </div>
+    </form>
+</section>
+
+{% if query %}
+    <div class="alert alert-secondary">
+        <strong>{{ query }}</strong> 검색 결과는 다음 단계에서 외부 도서 API와 연결할 예정입니다.
+    </div>
+{% endif %}
+
+<section class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">최근 저장된 책</h3>
+    </div>
+
+    {% if recent_books %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+            {% for book in recent_books %}
+                <div class="col">
+                    <article class="card h-100">
+                        {% if book.thumbnail_url %}
+                            <img src="{{ book.thumbnail_url }}" class="card-img-top" alt="{{ book.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-secondary mb-1">{{ book.author|default:"저자 정보 없음" }}</p>
+                            <p class="card-text small text-secondary mb-0">{{ book.publisher|default:"출판사 정보 없음" }}</p>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="border rounded p-4 text-secondary">
+            아직 저장된 책이 없습니다. 검색 API를 붙이면 선택한 책이 여기에 쌓이게 됩니다.
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

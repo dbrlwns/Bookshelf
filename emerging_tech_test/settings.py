@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
+    'library',
     'blogs',
     'ckeditor',
     'ckeditor_uploader',

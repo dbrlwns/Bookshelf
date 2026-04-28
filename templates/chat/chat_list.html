@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat Page{% endblock %}
+
+{% block extra_head %}
+<style>
+    .chat-hero {
+        background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.08) 0%, rgba(var(--bs-info-rgb), 0.08) 100%);
+        border: 1px solid rgba(var(--bs-primary-rgb), 0.12);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .chat-section-title {
+        letter-spacing: -0.02em;
+        color: var(--bs-emphasis-color);
+    }
+
+    .chat-list-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .chat-room-card {
+        position: relative;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1.25rem;
+        background-color: var(--bs-tertiary-bg);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .chat-room-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 22px 48px rgba(15, 23, 42, 0.1);
+    }
+
+    .chat-room-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .chat-room-card .card-body {
+        padding: 0.95rem 1rem;
+    }
+
+    .chat-room-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background-color: rgba(var(--bs-success-rgb), 0.1);
+        color: #1b7a54;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .chat-room-title {
+        color: var(--bs-emphasis-color);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+    }
+
+    .chat-room-preview {
+        color: var(--bs-secondary-color);
+        line-height: 1.45;
+        min-height: 2.1rem;
+        font-size: 0.92rem;
+    }
+
+    .chat-room-meta {
+        color: var(--bs-secondary-color);
+        font-size: 0.86rem;
+    }
+
+    .chat-room-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.16);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+    }
+
+    .chat-room-overlay span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.8rem 1.1rem;
+        border-radius: 999px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #0f172a;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .chat-room-card:hover .chat-room-overlay,
+    .chat-room-card:focus-within .chat-room-overlay {
+        opacity: 1;
+    }
+
+    .chat-empty {
+        border: 1px dashed var(--bs-border-color);
+        border-radius: 1.25rem;
+        background-color: var(--bs-tertiary-bg);
+        padding: 3rem 1.5rem;
+        text-align: center;
+        color: var(--bs-secondary-color);
+    }
+
+    html[data-bs-theme="dark"] .chat-hero {
+        background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-bs-theme="dark"] .chat-hero-kicker {
+        background-color: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-bs-theme="dark"] .chat-room-card,
+    html[data-bs-theme="dark"] .chat-empty {
+        background-color: #161b22;
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    html[data-bs-theme="dark"] .chat-room-card:hover {
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.38);
+    }
+
+    html[data-bs-theme="dark"] .chat-room-badge {
+        background-color: rgba(74, 222, 128, 0.12);
+        color: #86efac;
+    }
+
+    html[data-bs-theme="dark"] .chat-room-preview,
+    html[data-bs-theme="dark"] .chat-room-meta,
+    html[data-bs-theme="dark"] .text-secondary {
+        color: rgba(255, 255, 255, 0.72) !important;
+    }
+
+    html[data-bs-theme="dark"] .chat-room-title,
+    html[data-bs-theme="dark"] .chat-empty h2 {
+        color: #f8fafc;
+    }
+
+    html[data-bs-theme="dark"] .chat-room-overlay {
+        background: rgba(2, 6, 23, 0.4);
+    }
+
+    html[data-bs-theme="dark"] .chat-room-overlay span {
+        background-color: rgba(15, 23, 42, 0.9);
+        color: #f8fafc;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="chat-hero">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="display-6 fw-bold chat-section-title mb-2">Chatting room ({{ rooms|length }})</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#createChatModal">New chat</button>
+        </div>
+    </div>
+</section>
+
+{% if rooms %}
+    <section class="chat-list-grid">
+        {% for room in rooms %}
+            <article class="card chat-room-card">
+                <a href="{% url 'chat_room' room.slug %}" class="chat-room-link">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="chat-room-badge">
+                                <span class="rounded-circle bg-success" style="width: 8px; height: 8px;"></span>
+                                Open Room
+                            </span>
+                        </div>
+                        <h2 class="h5 fw-semibold mb-2 chat-room-title">{{ room.name }}</h2>
+                        <div class="chat-room-preview mb-3">
+                            {{ room.messages.last }}&nbsp;({{ room.messages.last.timestamp | date:"H:d" }})
+                        </div>
+                        <div class="mt-auto d-flex justify-content-between align-items-center chat-room-meta">
+                            <span>message {{ room.messages.count }}</span>
+                            <span>{{ room.created_at|date:"Y.m.d H:d" }}</span>
+                        </div>
+                    </div>
+                    <div class="chat-room-overlay">
+                        <span>Join this chat</span>
+                    </div>
+                </a>
+            </article>
+        {% endfor %}
+    </section>
+{% else %}
+    <section class="chat-empty">
+        <h2 class="h4 mb-2">Nothing chat room</h2>
+        <p class="mb-4">Create and start new chat</p>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createChatModal">첫 채팅방 만들기</button>
+    </section>
+{% endif %}
+
+<div class="modal fade" id="createChatModal" tabindex="-1" aria-labelledby="createChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{% url 'chat_index' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="createChatModalLabel">Create new Chatting</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="room-name-input" class="form-label fw-semibold">chat name</label>
+                    <input
+                        type="text"
+                        id="room-name-input"
+                        name="room_name"
+                        class="form-control"
+                        maxlength="100"
+                        placeholder="ex: Django Study Room"
+                        value="{{ room_name_value }}"
+                    >
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">cancle</button>
+                    <button type="submit" class="btn btn-primary">create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if open_create_modal %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modalElement = document.getElementById("createChatModal");
+    if (!modalElement || !window.bootstrap) {
+        return;
+    }
+
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+});
+</script>
+{% endif %}
+{% endblock %}
