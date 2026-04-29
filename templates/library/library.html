@@ -71,6 +71,7 @@
 
     .book-card {
         height: 100%;
+        width: 100%;
         border: 1px solid var(--bs-border-color);
         border-radius: 0.75rem;
         background-color: var(--bs-body-bg);
@@ -82,6 +83,16 @@
         transform: translateY(-3px);
         border-color: rgba(var(--bs-primary-rgb), 0.28);
         box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    .book-card-button {
+        padding: 0;
+        text-align: left;
+    }
+
+    .book-card-button:focus-visible {
+        outline: 3px solid rgba(var(--bs-primary-rgb), 0.3);
+        outline-offset: 3px;
     }
 
     .book-cover-wrap {
@@ -157,6 +168,164 @@
     html[data-bs-theme="dark"] .book-card:hover {
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
     }
+
+    .book-note-modal-cover {
+        width: 148px;
+        height: 212px;
+        object-fit: cover;
+        border-radius: 0.45rem;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
+    }
+
+    .book-note-modal-cover-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 148px;
+        height: 212px;
+        border-radius: 0.45rem;
+        border: 1px dashed var(--bs-border-color);
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-secondary-color);
+        font-weight: 700;
+    }
+
+    .book-note-modal-info {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .book-note-modal-title {
+        color: var(--bs-emphasis-color);
+        font-weight: 800;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+    }
+
+    .book-note-form-control {
+        border-radius: 0.75rem;
+        border-color: var(--bs-border-color);
+        background-color: var(--bs-body-bg);
+    }
+
+    @media (max-width: 767.98px) {
+        .book-note-modal-info {
+            grid-template-columns: 1fr;
+        }
+
+        .book-note-modal-cover,
+        .book-note-modal-cover-placeholder {
+            width: 116px;
+            height: 166px;
+        }
+    }
+
+    .recent-note-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+    }
+
+    .recent-note-card {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 0.9rem;
+        align-items: center;
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.75rem;
+        background-color: var(--bs-body-bg);
+        text-align: left;
+        transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .recent-note-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(var(--bs-primary-rgb), 0.28);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .recent-note-card:focus-visible {
+        outline: 3px solid rgba(var(--bs-primary-rgb), 0.3);
+        outline-offset: 3px;
+    }
+
+    .recent-note-cover {
+        width: 72px;
+        height: 102px;
+        object-fit: cover;
+        border-radius: 0.35rem;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .recent-note-cover-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 102px;
+        border-radius: 0.35rem;
+        border: 1px dashed var(--bs-border-color);
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-secondary-color);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .recent-note-title {
+        display: -webkit-box;
+        margin-bottom: 0.3rem;
+        overflow: hidden;
+        color: var(--bs-emphasis-color);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.35;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .recent-note-content {
+        display: -webkit-box;
+        margin-bottom: 0.4rem;
+        overflow: hidden;
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        line-height: 1.45;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .recent-note-meta {
+        color: var(--bs-secondary-color);
+        font-size: 0.78rem;
+    }
+
+    .note-view-content {
+        white-space: pre-wrap;
+        color: var(--bs-body-color);
+        line-height: 1.75;
+    }
+
+    .note-view-book-description {
+        display: -webkit-box;
+        margin-top: 1rem;
+        overflow: hidden;
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        line-height: 1.55;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 5;
+    }
+
+    @media (min-width: 768px) {
+        .recent-note-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
 </style>
 {% endblock %}
 
@@ -179,7 +348,7 @@
     </form>
     {% if recent_keywords %}
         <div class="recent-keywords" aria-label="최근 검색어">
-            <span class="recent-keywords-label">최근 검색어</span>
+            <span class="recent-keywords-label">recent search</span>
             {% for keyword in recent_keywords %}
                 <a class="recent-keyword-link" href="{% url 'book_home' %}?q={{ keyword|urlencode }}">{{ keyword }}</a>
             {% endfor %}
@@ -201,7 +370,19 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
                 {% for book in search_results %}
                     <div class="col">
-                        <article class="book-card">
+                        <button
+                            type="button"
+                            class="book-card book-card-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bookNoteModal"
+                            data-title="{{ book.title }}"
+                            data-author="{{ book.author }}"
+                            data-publisher="{{ book.publisher }}"
+                            data-isbn="{{ book.isbn }}"
+                            data-cover="{{ book.thumbnail_url }}"
+                            data-description="{{ book.description|striptags }}"
+                            data-publish-date="{{ book.publish_date }}"
+                        >
                             <div class="book-cover-wrap">
                                 {% if book.thumbnail_url %}
                                     <img src="{{ book.thumbnail_url }}" class="book-cover" alt="{{ book.title }}">
@@ -217,13 +398,13 @@
                                     <span class="book-isbn">ISBN {{ book.isbn }}</span>
                                 {% endif %}
                             </div>
-                        </article>
+                        </button>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="border rounded p-4 text-secondary">
-                검색 결과가 없습니다. 다른 키워드로 다시 검색해보세요.
+                Nothing, Search the other keyword
             </div>
         {% endif %}
     </section>
@@ -231,37 +412,276 @@
 
 <section class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="library-section-title mb-0">최근 저장된 책</h3>
+        <h3 class="library-section-title mb-0">Book reviews</h3>
     </div>
 
-    {% if recent_books %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-            {% for book in recent_books %}
-                <div class="col">
-                    <article class="book-card">
-                        <div class="book-cover-wrap">
-                            {% if book.thumbnail_url %}
-                                <img src="{{ book.thumbnail_url }}" class="book-cover" alt="{{ book.title }}">
-                            {% else %}
-                                <div class="book-cover-placeholder">No Cover</div>
-                            {% endif %}
-                        </div>
-                        <div class="book-card-body">
-                            <h4 class="book-title">{{ book.title }}</h4>
-                            <div class="book-meta">{{ book.author|default:"저자 정보 없음" }}</div>
-                            <div class="book-meta">{{ book.publisher|default:"출판사 정보 없음" }}</div>
-                            {% if book.isbn %}
-                                <span class="book-isbn">ISBN {{ book.isbn }}</span>
-                            {% endif %}
-                        </div>
-                    </article>
-                </div>
+    {% if recent_notes %}
+        <div class="recent-note-list">
+            {% for note in recent_notes %}
+                <button
+                    type="button"
+                    class="recent-note-card"
+                    data-bs-toggle="modal"
+                    data-bs-target="#bookNoteViewModal"
+                    data-book-title="{{ note.book.title }}"
+                    data-author="{{ note.book.author }}"
+                    data-publisher="{{ note.book.publisher }}"
+                    data-isbn="{{ note.book.isbn }}"
+                    data-cover="{{ note.book.thumbnail_url }}"
+                    data-description="{{ note.book.description|striptags }}"
+                    data-note-title="{{ note.title }}"
+                    data-note-content="{{ note.content }}"
+                    data-note-user="{{ note.user.username }}"
+                    data-note-date="{{ note.created_at|date:'Y.m.d' }}"
+                >
+                    <div>
+                        {% if note.book.thumbnail_url %}
+                            <img src="{{ note.book.thumbnail_url }}" class="recent-note-cover" alt="{{ note.book.title }}">
+                        {% else %}
+                            <div class="recent-note-cover-placeholder">No Cover</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="recent-note-title">{{ note.title }}</h4>
+                        <p class="recent-note-content">{{ note.content }}</p>
+
+                    </div>
+                </button>
             {% endfor %}
         </div>
     {% else %}
         <div class="border rounded p-4 text-secondary">
-            아직 저장된 책이 없습니다. 검색 API를 붙이면 선택한 책이 여기에 쌓이게 됩니다.
+            Empty Book review.
         </div>
     {% endif %}
 </section>
+
+<div class="modal fade" id="bookNoteModal" tabindex="-1" aria-labelledby="bookNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="bookNoteModalLabel">Write book review</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="book-note-modal-info">
+                            <div>
+                                <img id="bookNoteCover" class="book-note-modal-cover d-none" src="" alt="">
+                                <div id="bookNoteCoverPlaceholder" class="book-note-modal-cover-placeholder">No Cover</div>
+                            </div>
+                            <div>
+                                <h3 id="bookNoteTitle" class="book-note-modal-title h4 mb-3"></h3>
+                                <div id="bookNoteAuthor" class="book-meta mb-1"></div>
+                                <div id="bookNotePublisher" class="book-meta mb-1"></div>
+                                <span id="bookNoteIsbn" class="book-isbn d-none"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <form method="post" action="{% url 'book_note_create' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="book_title" id="bookNoteHiddenTitle">
+                            <input type="hidden" name="book_author" id="bookNoteHiddenAuthor">
+                            <input type="hidden" name="book_publisher" id="bookNoteHiddenPublisher">
+                            <input type="hidden" name="book_isbn" id="bookNoteHiddenIsbn">
+                            <input type="hidden" name="book_thumbnail_url" id="bookNoteHiddenCover">
+                            <input type="hidden" name="book_description" id="bookNoteHiddenDescription">
+                            <input type="hidden" name="book_publish_date" id="bookNoteHiddenPublishDate">
+                            <div class="mb-3">
+                                <label for="bookNoteFormTitle" class="form-label fw-semibold">review title</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    id="bookNoteFormTitle"
+                                    class="form-control book-note-form-control"
+                                    placeholder="post title"
+                                    required
+                                >
+                            </div>
+                            <div class="mb-3">
+                                <label for="bookNoteFormContent" class="form-label fw-semibold">content</label>
+                                <textarea
+                                    name="content"
+                                    id="bookNoteFormContent"
+                                    class="form-control book-note-form-control"
+                                    rows="9"
+                                    placeholder="Write your book here..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">close</button>
+                                <button type="submit" class="btn btn-primary">save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="bookNoteViewModal" tabindex="-1" aria-labelledby="bookNoteViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="bookNoteViewModalLabel">Book review</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="book-note-modal-info">
+                            <div>
+                                <img id="bookNoteViewCover" class="book-note-modal-cover d-none" src="" alt="">
+                                <div id="bookNoteViewCoverPlaceholder" class="book-note-modal-cover-placeholder">No Cover</div>
+                            </div>
+                            <div>
+                                <h3 id="bookNoteViewBookTitle" class="book-note-modal-title h4 mb-3"></h3>
+                                <div id="bookNoteViewAuthor" class="book-meta mb-1"></div>
+                                <div id="bookNoteViewPublisher" class="book-meta mb-1"></div>
+                                <span id="bookNoteViewIsbn" class="book-isbn d-none"></span>
+                                <p id="bookNoteViewDescription" class="note-view-book-description"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <p id="bookNoteViewMeta" class="text-secondary small mb-2"></p>
+                        <h3 id="bookNoteViewNoteTitle" class="h4 fw-bold mb-3"></h3>
+                        <div id="bookNoteViewContent" class="note-view-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("bookNoteModal");
+        if (!modal) return;
+
+        const cover = document.getElementById("bookNoteCover");
+        const coverPlaceholder = document.getElementById("bookNoteCoverPlaceholder");
+        const title = document.getElementById("bookNoteTitle");
+        const author = document.getElementById("bookNoteAuthor");
+        const publisher = document.getElementById("bookNotePublisher");
+        const isbn = document.getElementById("bookNoteIsbn");
+        const noteTitle = document.getElementById("bookNoteFormTitle");
+        const noteContent = document.getElementById("bookNoteFormContent");
+        const hiddenTitle = document.getElementById("bookNoteHiddenTitle");
+        const hiddenAuthor = document.getElementById("bookNoteHiddenAuthor");
+        const hiddenPublisher = document.getElementById("bookNoteHiddenPublisher");
+        const hiddenIsbn = document.getElementById("bookNoteHiddenIsbn");
+        const hiddenCover = document.getElementById("bookNoteHiddenCover");
+        const hiddenDescription = document.getElementById("bookNoteHiddenDescription");
+        const hiddenPublishDate = document.getElementById("bookNoteHiddenPublishDate");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+            const trigger = event.relatedTarget;
+            if (!trigger) return;
+
+            const bookTitle = trigger.dataset.title || "제목 정보 없음";
+            const bookAuthor = trigger.dataset.author || "저자 정보 없음";
+            const bookPublisher = trigger.dataset.publisher || "출판사 정보 없음";
+            const bookIsbn = trigger.dataset.isbn || "";
+            const bookCover = trigger.dataset.cover || "";
+            const bookDescription = trigger.dataset.description || "";
+            const bookPublishDate = trigger.dataset.publishDate || "";
+
+            title.textContent = bookTitle;
+            author.textContent = bookAuthor;
+            publisher.textContent = bookPublisher;
+            noteTitle.value = bookTitle ? bookTitle + " 감상" : "";
+            noteContent.value = "";
+            hiddenTitle.value = bookTitle;
+            hiddenAuthor.value = bookAuthor;
+            hiddenPublisher.value = bookPublisher;
+            hiddenIsbn.value = bookIsbn;
+            hiddenCover.value = bookCover;
+            hiddenDescription.value = bookDescription;
+            hiddenPublishDate.value = bookPublishDate;
+
+            if (bookIsbn) {
+                isbn.textContent = "ISBN " + bookIsbn;
+                isbn.classList.remove("d-none");
+            } else {
+                isbn.classList.add("d-none");
+            }
+
+            if (bookCover) {
+                cover.src = bookCover;
+                cover.alt = bookTitle;
+                cover.classList.remove("d-none");
+                coverPlaceholder.classList.add("d-none");
+            } else {
+                cover.removeAttribute("src");
+                cover.alt = "";
+                cover.classList.add("d-none");
+                coverPlaceholder.classList.remove("d-none");
+            }
+        });
+
+        const viewModal = document.getElementById("bookNoteViewModal");
+        if (!viewModal) return;
+
+        const viewCover = document.getElementById("bookNoteViewCover");
+        const viewCoverPlaceholder = document.getElementById("bookNoteViewCoverPlaceholder");
+        const viewBookTitle = document.getElementById("bookNoteViewBookTitle");
+        const viewAuthor = document.getElementById("bookNoteViewAuthor");
+        const viewPublisher = document.getElementById("bookNoteViewPublisher");
+        const viewIsbn = document.getElementById("bookNoteViewIsbn");
+        const viewDescription = document.getElementById("bookNoteViewDescription");
+        const viewMeta = document.getElementById("bookNoteViewMeta");
+        const viewNoteTitle = document.getElementById("bookNoteViewNoteTitle");
+        const viewContent = document.getElementById("bookNoteViewContent");
+
+        viewModal.addEventListener("show.bs.modal", function (event) {
+            const trigger = event.relatedTarget;
+            if (!trigger) return;
+
+            const bookTitle = trigger.dataset.bookTitle || "제목 정보 없음";
+            const bookAuthor = trigger.dataset.author || "저자 정보 없음";
+            const bookPublisher = trigger.dataset.publisher || "출판사 정보 없음";
+            const bookIsbn = trigger.dataset.isbn || "";
+            const bookCover = trigger.dataset.cover || "";
+            const bookDescription = trigger.dataset.description || "";
+            const noteTitle = trigger.dataset.noteTitle || "제목 없는 기록";
+            const noteContent = trigger.dataset.noteContent || "";
+            const noteUser = trigger.dataset.noteUser || "";
+            const noteDate = trigger.dataset.noteDate || "";
+
+            viewBookTitle.textContent = bookTitle;
+            viewAuthor.textContent = bookAuthor;
+            viewPublisher.textContent = bookPublisher;
+            viewDescription.textContent = bookDescription || "책 소개가 제공되지 않았습니다.";
+            viewNoteTitle.textContent = noteTitle;
+            viewContent.textContent = noteContent;
+            viewMeta.textContent = [noteUser, noteDate].filter(Boolean).join(" · ");
+
+            if (bookIsbn) {
+                viewIsbn.textContent = "ISBN " + bookIsbn;
+                viewIsbn.classList.remove("d-none");
+            } else {
+                viewIsbn.classList.add("d-none");
+            }
+
+            if (bookCover) {
+                viewCover.src = bookCover;
+                viewCover.alt = bookTitle;
+                viewCover.classList.remove("d-none");
+                viewCoverPlaceholder.classList.add("d-none");
+            } else {
+                viewCover.removeAttribute("src");
+                viewCover.alt = "";
+                viewCover.classList.add("d-none");
+                viewCoverPlaceholder.classList.remove("d-none");
+            }
+        });
+    });
+</script>
 {% endblock %}
