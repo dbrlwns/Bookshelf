@@ -266,10 +266,10 @@
     <div class="chat-room-panel">
         <div id="chat-log" class="chat-log">
             {% for message in chat_messages %}
-                <div class="chat-message {% if user.is_authenticated and message.author == user.username %}is-mine{% endif %}">
+                <div class="chat-message {% if user.is_authenticated and message.author == user %}is-mine{% endif %}">
                     <div class="chat-message-profile">
-                        {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}"
+                        {% if message.author.profile_image %}
+                            <img src="{{ message.author.profile_image.url }}"
                                  alt="profile"
                                  class="chat-avatar"
                                  style="object-fit:cover;">
@@ -279,7 +279,7 @@
                                  class="chat-avatar"
                                  style="object-fit:cover;">
                         {% endif %}
-                        <span class="chat-profile-name">{{ message.author }}</span>
+                        <span class="chat-profile-name">{{ message.author.username }}</span>
                     </div>
                     <div class="chat-bubble">
                         <div class="chat-text">{{ message.content }}</div>
@@ -309,7 +309,7 @@
                             {% endif %}
                     <span>{{ user.username }}</span>
                 </div>
-                <input id="message-input" class="form-control" type="text" placeholder="write message..." autocomplete="off">
+                <input id="message-input" class="form-control" type="text" placeholder="write message..." autocomplete="off" autofocus>
                 <button id="send-btn" class="btn btn-primary px-4" type="button">
                     <i class="bi bi-send-fill"></i>
                 </button>
@@ -347,17 +347,27 @@ document.addEventListener("DOMContentLoaded", function () {
         chatLog.scrollTop = chatLog.scrollHeight;
     }
 
-    function appendMessage(author, message) {
+    function scrollToLatestSoon() {
+        scrollToLatest();
+        requestAnimationFrame(scrollToLatest);
+        setTimeout(scrollToLatest, 100);
+    }
+
+    function appendMessage(author, message, profileImageUrl) {
         const emptyState = document.getElementById("chat-empty");
         if (emptyState) {
             emptyState.remove();
         }
 
+        const avatarHtml = profileImageUrl
+            ? `<img src="${escapeHtml(profileImageUrl)}" alt="profile" class="chat-avatar" style="object-fit:cover;">`
+            : `<div class="chat-avatar">${escapeHtml(getInitial(author))}</div>`;
+
         const item = document.createElement("div");
         item.className = `chat-message ${author === currentUser ? "is-mine" : ""}`;
         item.innerHTML = `
             <div class="chat-message-profile">
-                <div class="chat-avatar">${escapeHtml(getInitial(author))}</div>
+                ${avatarHtml}
                 <span class="chat-profile-name">${escapeHtml(author)}</span>
             </div>
             <div class="chat-bubble">
@@ -365,19 +375,23 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
         chatLog.appendChild(item);
-        scrollToLatest();
+        scrollToLatestSoon();
     }
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        appendMessage(data.author, data.message);
+        appendMessage(data.author, data.message, data.profile_image_url);
     };
 
     socket.onclose = function () {
         console.log("WebSocket 연결이 끊겼습니다.");
     };
 
-    scrollToLatest();
+    scrollToLatestSoon();
+
+    chatLog.querySelectorAll("img").forEach(function (image) {
+        image.addEventListener("load", scrollToLatestSoon, { once: true });
+    });
 
     const messageInput = document.getElementById("message-input");
     const sendButton = document.getElementById("send-btn");
@@ -387,7 +401,34 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    function focusMessageInput() {
+        try {
+            messageInput.focus({ preventScroll: true });
+        } catch (error) {
+            messageInput.focus();
+        }
+    }
+
+    focusMessageInput();
+    requestAnimationFrame(focusMessageInput);
+    setTimeout(focusMessageInput, 150);
+    window.addEventListener("load", focusMessageInput, { once: true });
+
+    let isComposing = false;
+
+    messageInput.addEventListener("compositionstart", function () {
+        isComposing = true;
+    });
+
+    messageInput.addEventListener("compositionend", function () {
+        isComposing = false;
+    });
+
     messageInput.addEventListener("keydown", function (event) {
+        if (event.isComposing || isComposing) {
+            return;
+        }
+
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             sendButton.click();

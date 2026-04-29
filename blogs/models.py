@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
@@ -16,9 +18,17 @@ class Tag(models.Model):
     def __str__(self):
         return f"#{self.name}"
 
+    """
+    slug 저장 문제
+    1. 한글 저장 시 slugify 미반환&중복문제 : 미반환 시 uuid값으로 slug 생성
+    2. slugify(allow_unicode=True)로 한글 slug 가능
+    3. Django와 django처럼 대소문자로 충돌 발생 : 소문자만 가능하게
+    
+    slug 중복 처리 개선?
+    """
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name) or "tag"
+            self.slug = slugify(self.name.strip().lower(), allow_unicode=True) or f"tag-{uuid.uuid4().hex[:8]}"
         super().save(*args, **kwargs)
 
 

@@ -38,5 +38,5 @@ def index(request):
 
 def room(request, room_slug):
     room = get_object_or_404(Room, slug=room_slug)
-    chat_messages = room.messages.all()
+    chat_messages = room.messages.select_related("author").all()
     return render(request, 'chat/room.html', {'room': room, 'chat_messages': chat_messages})

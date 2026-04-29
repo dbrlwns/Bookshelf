@@ -33,10 +33,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # loads() : Json 문자열을 파이썬 딕셔너리로 변환
         data = json.loads(text_data)
         message = data['message']
-        author = data['author']
+        # author = data['author']
+        user = self.scope['user']
+        if not user.is_authenticated: return
+        profile_image_url = await self.save_message(user, message)
 
         # DB에 메시지 저장
-        await self.save_message(author, message)
+        # await self.save_message(author, message)
 
         # 그룹 내 모든 클라이언트에게 메시지 전송
         await self.channel_layer.group_send(
@@ -44,7 +47,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message', # 이벤트를 처리할 메서드 이름을 지정
                 'message': message,
-                'author': author,
+                'author': user.username,
+                'profile_image_url': profile_image_url
             }
         )
 
@@ -55,12 +59,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # websocket은 문자열만 주고받을 수 있어서 변환이 필수임.
             'message': event['message'],
             'author': event['author'],
+            'profile_image_url': event['profile_image_url']
         }))
 
     @database_sync_to_async # 동기 ORM 명령을 비동기 환경에서 실행가능
     def save_message(self, author, content):
         room = Room.objects.get(slug=self.room_slug)
         Message.objects.create(room=room, author=author, content=content)
+
+        if author.profile_image:
+            return author.profile_image.url
+        return "/media/profile_images/default_image.png"
 
 
 """

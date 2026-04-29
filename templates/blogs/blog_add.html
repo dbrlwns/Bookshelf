@@ -150,6 +150,11 @@
                 {% endfor %}
             </div>
 
+            <div class="mb-3">
+                <label for="{{ form.tag_names.id_for_label }}" class="form-label blog-field-label">Tags : </label>
+                    {{ form.tag_names }}
+            </div>
+
             <div class="blog-form-actions">
                 <p class="blog-form-help mb-0">
                     {% if is_edit %}

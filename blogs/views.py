@@ -98,6 +98,13 @@ def blog_add(request):
             blog = form.save(commit=False)
             blog.author = request.user
             blog.save()
+
+            # 태그 추가
+            tags = []
+            for name in form.cleaned_data["tag_names"]:
+                tag, created = Tag.objects.get_or_create(name=name)
+                tags.append(tag)
+            blog.tags.set(tags) # 이건 처음 써보네
             messages.success(request, "Blog created successfully")
             return redirect("blog_list")
 
@@ -119,12 +126,23 @@ def blog_edit(request, pk):
         form = BlogForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
             form.save()
+
+            # 태그 추가
+            tags = []
+            for name in form.cleaned_data["tag_names"]:
+                tag, created = Tag.objects.get_or_create(name=name)
+                tags.append(tag)
+            blog.tags.set(tags)
+
             messages.success(request, "Blog updated successfully")
             return redirect("blog_detail", pk=blog.pk)
 
         messages.error(request, "Please check the form again")
     else:
-        form = BlogForm(instance=blog)
+        initial = {
+            "tag_names": ", ".join(tag.name for tag in blog.tags.all())
+        }
+        form = BlogForm(instance=blog, initial=initial)
 
     context = {
         "form": form,
@@ -132,3 +150,16 @@ def blog_edit(request, pk):
         "blog": blog,
     }
     return render(request, "blogs/blog_add.html", context)
+
+
+"""
+1. blog.tags.set(tags) : blog 모델에 ManyToManyField로 tags가 있음.
+    이 블로그에 연결된 태그 목록을 전달받은 tags 통으로 교체함.
+    ManyToManyField는 blog가 DB에 저장된 뒤에 연결할 수 있음.(blog.id가 필요해서)
+    
+2. initial 파라미터 : instance는 모델 필드의 기존 값을 채워줌.
+    하지만 tag_names는 Blog 모델에 있는 필드가 아님. (form에서 추가한 필드)
+    initial = { "tag_names": "파이썬, 장고, AI" } 이렇게 넣어주면 내용이 채워짐
+
+
+"""

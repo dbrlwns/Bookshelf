@@ -176,7 +176,56 @@
 
     <div class="container">
         {% block content %}{% endblock %}
-        hav todo things : room.html에 다른 사용자에 맞는 프로필이미지 표시, 태그 추가 설정
+        hav todo things :
+        issue fixed : Book 모델 필드가 너무 많은가?<br />
+ISBN 하나로 가도 되나?<br />
+blank/null 차이는?<br />
+검색 기록은 DB냐 세션이냐?<br />
+Blog와 통합할까 BookNote를 따로 만들까?<br />
+modal UX가 맞나?<br />
+    <br />
+
+    what is good potfolio :<br />
+    README에 기획 의도와 구조가 정리되어 있다<br />
+주요 기능이 안정적으로 동작한다<br />
+예외 처리가 있다<br />
+테스트가 일부 있다<br />
+배포되어 있다<br />
+코드가 너무 지저분하지 않다<br />
+본인이 고민한 흔적이 있다<br /><br /><br />
+
+
+    now i ll add somethings :<br />
+    README 작성<br />
+
+서비스 소개<br />
+핵심 기능<br />
+사용 기술<br />
+ERD 또는 모델 구조<br />
+주요 구현 포인트<br />
+고민한 의사결정<br />
+코드 정리<br />
+
+clients.py: 외부 API 호출<br />
+services.py: 저장/정규화 로직<br />
+views.py: 요청 흐름<br />
+template: 화면<br />
+이 분리를 README에 설명<br />
+테스트 추가<br />
+
+ISBN 정규화 테스트<br />
+save_book_from_api_data() 중복 저장 테스트<br />
+BookNote 생성 테스트<br />
+예외 처리<br />
+
+알라딘 API 실패 시 메시지<br />
+API key 없을 때 안내<br />
+로그인 안 했을 때 기록 저장 제한<br />
+배포<br />
+
+Render, Railway, Fly.io 같은 곳<br />
+SQLite 말고 가능하면 PostgreSQL<br />
+.env 분리<br />
 
     </div>
 
