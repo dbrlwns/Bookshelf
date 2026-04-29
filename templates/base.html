@@ -18,12 +18,12 @@
         }
 
         .site-nav {
-        display: flex;
-        align-items: center;
-        gap: 0.55rem;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .site-nav-link {
@@ -64,16 +64,21 @@
             color: #bfdbfe;
         }
 
-        @media (max-width: 576px) {
-            .site-nav {
-                position: static;
-                transform: none;
-                gap: 0.35rem;
-            }
+        .site-menu-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+        }
 
-            .site-nav-link {
-                padding: 0.4rem 0.75rem;
-                font-size: 0.92rem;
+        @media (max-width: 767.98px) {
+            .site-brand {
+                max-width: 48vw;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
     </style>
@@ -85,7 +90,7 @@
             <!-- Logo -->
             <a class="navbar-brand fw-bold site-brand" href="/">Emerging Tech Test</a>
             <!-- Links -->
-            <div class="site-nav">
+            <div class="site-nav d-none d-md-flex">
                 <a class="site-nav-link {% if request.path == '/chat/' or request.path|slice:':6' == '/chat/' %}is-active{% endif %}"
                     href="/chat">Chat</a>
                 <a class="site-nav-link {% if request.path == '/blog/' or request.path|slice:':6' == '/blog/' %}is-active{% endif %}"
@@ -97,6 +102,24 @@
             </div>
             <!-- Profile -->
             <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="dropdown d-md-none">
+                    <button
+                        class="btn btn-outline-secondary btn-sm site-menu-button"
+                        type="button"
+                        id="dropdownSiteNav"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="메뉴 열기"
+                    >
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownSiteNav">
+                        <li><a class="dropdown-item {% if request.path == '/chat/' or request.path|slice:':6' == '/chat/' %}active{% endif %}" href="/chat">Chat</a></li>
+                        <li><a class="dropdown-item {% if request.path == '/blog/' or request.path|slice:':6' == '/blog/' %}active{% endif %}" href="/blog">Blog</a></li>
+                        <li><a class="dropdown-item {% if request.path == '/book/' or request.path|slice:':6' == '/book/' %}active{% endif %}" href="/book">Book</a></li>
+                        <li><a class="dropdown-item {% if request.path == '/esrgan/' or request.path|slice:':8' == '/esrgan/' %}active{% endif %}" href="/blog">ESRGAN</a></li>
+                    </ul>
+                </div>
                 {% if user.is_authenticated %}
                     <!-- 드롭다운 -->
                     <div class="dropdown">

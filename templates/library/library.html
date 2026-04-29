@@ -2,48 +2,257 @@
 
 {% block title %}Library{% endblock %}
 
+{% block extra_head %}
+<style>
+    .library-search-section {
+        padding: 3.5rem 0 2.5rem;
+    }
+
+    .library-search-form {
+        max-width: 720px;
+    }
+
+    .library-search-input {
+        border-radius: 999px 0 0 999px;
+        padding-left: 1.25rem;
+    }
+
+    .library-search-button {
+        border-radius: 0 999px 999px 0;
+        min-width: 96px;
+    }
+
+    .recent-keywords {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        max-width: 720px;
+        margin: 1rem auto 0;
+        overflow-x: auto;
+        padding: 0.15rem 0.25rem 0.35rem;
+    }
+
+    .recent-keywords-label {
+        flex: 0 0 auto;
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .recent-keyword-link {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0.35rem 0.75rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 999px;
+        background-color: var(--bs-body-bg);
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+        white-space: nowrap;
+    }
+
+    .recent-keyword-link:hover {
+        border-color: rgba(var(--bs-primary-rgb), 0.32);
+        background-color: rgba(var(--bs-primary-rgb), 0.08);
+        color: var(--bs-primary);
+    }
+
+    .library-section-title {
+        color: var(--bs-emphasis-color);
+        letter-spacing: -0.02em;
+    }
+
+    .book-card {
+        height: 100%;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.75rem;
+        background-color: var(--bs-body-bg);
+        overflow: hidden;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .book-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(var(--bs-primary-rgb), 0.28);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    .book-cover-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+        padding: 1rem;
+        background: linear-gradient(180deg, rgba(var(--bs-secondary-rgb), 0.08), rgba(var(--bs-secondary-rgb), 0.03));
+    }
+
+    .book-cover {
+        width: 132px;
+        height: 188px;
+        object-fit: cover;
+        border-radius: 0.35rem;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+    }
+
+    .book-cover-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 132px;
+        height: 188px;
+        border-radius: 0.35rem;
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-secondary-color);
+        border: 1px dashed var(--bs-border-color);
+        text-align: center;
+        padding: 1rem;
+        font-weight: 700;
+    }
+
+    .book-card-body {
+        padding: 1rem;
+    }
+
+    .book-title {
+        display: -webkit-box;
+        min-height: 3rem;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+        color: var(--bs-emphasis-color);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.5;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .book-meta {
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
+
+    .book-isbn {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        margin-top: 0.85rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 999px;
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-secondary-color);
+        font-size: 0.78rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    html[data-bs-theme="dark"] .book-card:hover {
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-5 text-center">
+<section class="library-search-section text-center">
     <h1 class="display-5 fw-bold mb-4">Book</h1>
-    <form method="get" action="{% url 'book_home' %}" class="mx-auto" style="max-width: 680px;">
+    <form method="get" action="{% url 'book_home' %}" class="library-search-form mx-auto">
         <!-- method가 get이면 input 태그의 name에 맞는 쿼리 파라미터를 전달함. -->
         <div class="input-group input-group-lg">
             <input
                 type="search"
                 name="q"
                 value="{{ query }}"
-                class="form-control"
+                class="form-control library-search-input"
                 placeholder="도서명, 저자, ISBN으로 검색"
                 aria-label="도서 검색"
             >
-            <button class="btn btn-primary" type="submit">검색</button>
+            <button class="btn btn-primary library-search-button" type="submit">검색</button>
         </div>
     </form>
+    {% if recent_keywords %}
+        <div class="recent-keywords" aria-label="최근 검색어">
+            <span class="recent-keywords-label">최근 검색어</span>
+            {% for keyword in recent_keywords %}
+                <a class="recent-keyword-link" href="{% url 'book_home' %}?q={{ keyword|urlencode }}">{{ keyword }}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
 </section>
 
 {% if query %}
-    <div class="alert alert-secondary">
-        <strong>{{ query }}</strong> 검색 결과는 다음 단계에서 외부 도서 API와 연결할 예정입니다.
-    </div>
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-end gap-3 mb-3 flex-wrap">
+            <div>
+                <h3 class="library-section-title mb-1">검색 결과</h3>
+                <p class="text-secondary mb-0"><strong>{{ query }}</strong>에 대한 도서 목록입니다.</p>
+            </div>
+            <span class="badge text-bg-secondary">{{ search_results|length }}권</span>
+        </div>
+
+        {% if search_results %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+                {% for book in search_results %}
+                    <div class="col">
+                        <article class="book-card">
+                            <div class="book-cover-wrap">
+                                {% if book.thumbnail_url %}
+                                    <img src="{{ book.thumbnail_url }}" class="book-cover" alt="{{ book.title }}">
+                                {% else %}
+                                    <div class="book-cover-placeholder">No Cover</div>
+                                {% endif %}
+                            </div>
+                            <div class="book-card-body">
+                                <h4 class="book-title">{{ book.title }}</h4>
+                                <div class="book-meta">{{ book.author|default:"저자 정보 없음" }}</div>
+                                <div class="book-meta">{{ book.publisher|default:"출판사 정보 없음" }}</div>
+                                {% if book.isbn %}
+                                    <span class="book-isbn">ISBN {{ book.isbn }}</span>
+                                {% endif %}
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="border rounded p-4 text-secondary">
+                검색 결과가 없습니다. 다른 키워드로 다시 검색해보세요.
+            </div>
+        {% endif %}
+    </section>
 {% endif %}
 
 <section class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">최근 저장된 책</h3>
+        <h3 class="library-section-title mb-0">최근 저장된 책</h3>
     </div>
 
     {% if recent_books %}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
             {% for book in recent_books %}
                 <div class="col">
-                    <article class="card h-100">
-                        {% if book.thumbnail_url %}
-                            <img src="{{ book.thumbnail_url }}" class="card-img-top" alt="{{ book.title }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ book.title }}</h5>
-                            <p class="card-text text-secondary mb-1">{{ book.author|default:"저자 정보 없음" }}</p>
-                            <p class="card-text small text-secondary mb-0">{{ book.publisher|default:"출판사 정보 없음" }}</p>
+                    <article class="book-card">
+                        <div class="book-cover-wrap">
+                            {% if book.thumbnail_url %}
+                                <img src="{{ book.thumbnail_url }}" class="book-cover" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="book-cover-placeholder">No Cover</div>
+                            {% endif %}
+                        </div>
+                        <div class="book-card-body">
+                            <h4 class="book-title">{{ book.title }}</h4>
+                            <div class="book-meta">{{ book.author|default:"저자 정보 없음" }}</div>
+                            <div class="book-meta">{{ book.publisher|default:"출판사 정보 없음" }}</div>
+                            {% if book.isbn %}
+                                <span class="book-isbn">ISBN {{ book.isbn }}</span>
+                            {% endif %}
                         </div>
                     </article>
                 </div>
