@@ -104,7 +104,7 @@ def blog_add(request):
             for name in form.cleaned_data["tag_names"]:
                 tag, created = Tag.objects.get_or_create(name=name)
                 tags.append(tag)
-            blog.tags.set(tags) # 이건 처음 써보네
+            blog.tags.set(tags) #
             messages.success(request, "Blog created successfully")
             return redirect("blog_list")
 
