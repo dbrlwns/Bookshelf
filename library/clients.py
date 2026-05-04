@@ -62,7 +62,7 @@ def search_books(query, *, max_results=10, start=1, query_type="Keyword"):
     # print(urlencode(params))
     try:
         with urlopen(url, timeout=5) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+            payload = json.loads(response.read().decode("utf-8")) # byte to str to json
     except HTTPError as error:
         raise AladinAPIError(f"Aladin API returned HTTP {error.code}.") from error
     except URLError as error:

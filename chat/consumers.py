@@ -36,10 +36,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # author = data['author']
         user = self.scope['user']
         if not user.is_authenticated: return
-        profile_image_url = await self.save_message(user, message)
 
-        # DB에 메시지 저장
-        # await self.save_message(author, message)
+        # 인증된 사용자로 메시지를 DB에 저장
+        profile_image_url = await self.save_message(user, message)
 
         # 그룹 내 모든 클라이언트에게 메시지 전송
         await self.channel_layer.group_send(

@@ -98,7 +98,7 @@ def save_book_from_api_data(data):
 
 """
 키워드 인자
-Book.objects.create(**book_data)는
+Book.objects.create(**book_data)는 (book_data는 딕셔너리)
     Book.objects.create(
     title="python",
     author="dbrlwns",
