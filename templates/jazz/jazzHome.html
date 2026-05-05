@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Jazz{% endblock %}
+
+
+{% block content %}
+<h3>Jazz page</h3>
+    <!-- 한 페이지에 여러 Form에 대해 urls, views로 분기하거나 submit 태그의 name과 value attr로 분기할 수 있음. -->
+    <form method="POST" enctype="multipart/form-data" action="{% url 'jazz:jazz_add' %}">
+        {% csrf_token %}
+        {{ forms.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
