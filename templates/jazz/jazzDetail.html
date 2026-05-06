@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Jazz {{ jazz.id }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .detail-page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+  }
+
+  .detail-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .back-link {
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .back-link:hover {
+    color: var(--bs-emphasis-color);
+  }
+
+  .track-title {
+    overflow-wrap: anywhere;
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 850;
+  }
+
+  .track-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    color: var(--bs-secondary-color);
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .tool-panel {
+    padding: 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    background: var(--bs-body-bg);
+  }
+
+  .panel-title {
+    margin-bottom: 0.85rem;
+    font-size: 1rem;
+    font-weight: 850;
+  }
+
+  #waveform {
+    min-height: 150px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    background: var(--bs-tertiary-bg);
+  }
+
+  .transport-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+  }
+
+  .zoom-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .zoom-control input {
+    width: 160px;
+  }
+
+  .style-options {
+    display: grid;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .style-option {
+    position: relative;
+  }
+
+  .style-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .style-option span {
+    display: block;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .style-option small {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+  }
+
+  .style-option input:checked + span {
+    border-color: rgba(var(--bs-primary-rgb), 0.7);
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    color: #2457a7;
+  }
+
+  .result-audio {
+    width: 100%;
+  }
+
+  .error-box {
+    margin-top: 1rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(var(--bs-danger-rgb), 0.35);
+    border-radius: 8px;
+    color: var(--bs-danger-text-emphasis);
+    background: rgba(var(--bs-danger-rgb), 0.08);
+    font-size: 0.92rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-topbar {
+      display: block;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+  <div class="detail-topbar">
+    <a class="back-link" href="{% url 'jazz:jazz' %}">
+      <i class="bi bi-arrow-left me-1"></i>
+      목록
+    </a>
+  </div>
+
+  <h3 class="track-title">{{ jazz.original_file.name }}</h3>
+  <div class="track-meta">
+    <span class="meta-chip">{{ jazz.status }}</span>
+    <span class="meta-chip">{{ jazz.duration|floatformat:1 }}초</span>
+    {% if jazz.bpm %}
+      <span class="meta-chip">{{ jazz.bpm|floatformat:1 }} BPM</span>
+    {% else %}
+      <span class="meta-chip">BPM 분석 전</span>
+    {% endif %}
+    <span class="meta-chip">{{ jazz.style }}</span>
+  </div>
+
+  <div class="workspace-grid">
+    <section class="tool-panel">
+      <div class="panel-title">원본 파형</div>
+      <div id="waveform"></div>
+
+      <div class="transport-row">
+        <button type="button" id="play-button" class="btn btn-primary btn-sm">
+          <i class="bi bi-play-fill me-1"></i>
+          재생
+        </button>
+        <label class="zoom-control">
+          Zoom
+          <input type="range" min="10" max="1000" value="100" />
+        </label>
+      </div>
+    </section>
+
+    <aside class="tool-panel">
+      <div class="panel-title">변환 스타일</div>
+      <form method="post" action="{% url 'jazz:jazz_transform' jazz.id %}">
+        {% csrf_token %}
+        <div class="style-options">
+          <label class="style-option">
+            <input type="radio" name="style" value="swing" {% if jazz.style == "swing" %}checked{% endif %}>
+            <span>
+              Swing
+              <small>빠르고 클래식한 재즈 클럽 무드</small>
+            </span>
+          </label>
+
+          <label class="style-option">
+            <input type="radio" name="style" value="lofi" {% if jazz.style == "lofi" %}checked{% endif %}>
+            <span>
+              Lo-fi Jazz
+              <small>느슨하고 따뜻한 애니/작업용 무드</small>
+            </span>
+          </label>
+        </div>
+
+        <button class="btn btn-dark w-100" type="submit">
+          <i class="bi bi-music-note-beamed me-1"></i>
+          변환하기
+        </button>
+      </form>
+
+      {% if jazz.result_file %}
+        <hr>
+        <div class="panel-title">변환 결과</div>
+        <audio class="result-audio" controls src="{{ jazz.result_file.url }}"></audio>
+      {% endif %}
+
+      {% if jazz.error_message %}
+        <div class="error-box">{{ jazz.error_message }}</div>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+  import WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.esm.js'
+  import TimelinePlugin from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/plugins/timeline.esm.js'
+
+  const playButton = document.querySelector('#play-button')
+  const playIcon = playButton.querySelector('i')
+
+  const wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: '#6b7280',
+    progressColor: '#2563eb',
+    cursorColor: '#111827',
+    url: '{{ jazz.original_file.url|escapejs }}',
+    height: 128,
+    minPxPerSec: 100,
+    plugins: [TimelinePlugin.create()],
+  })
+
+  playButton.addEventListener('click', () => {
+    wavesurfer.playPause()
+  })
+
+  wavesurfer.on('play', () => {
+    playIcon.className = 'bi bi-pause-fill me-1'
+  })
+
+  wavesurfer.on('pause', () => {
+    playIcon.className = 'bi bi-play-fill me-1'
+  })
+
+  wavesurfer.on('finish', () => {
+    wavesurfer.setTime(0)
+    playIcon.className = 'bi bi-play-fill me-1'
+  })
+
+  wavesurfer.once('decode', () => {
+    const slider = document.querySelector('input[type="range"]')
+
+    slider.addEventListener('input', (event) => {
+      wavesurfer.zoom(event.target.valueAsNumber)
+    })
+  })
+</script>
+{% endblock %}
