@@ -183,3 +183,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     }, # 추후에 redis를 활용해 channel 설정
 }
+
+
+# Celery가 Redis 찾는 경로
+CELERY_BROKER_URL = "redis://localhost:6379/0" # 큐 주소
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0" # 작업 결과

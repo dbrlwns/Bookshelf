@@ -1,9 +1,5 @@
-# 프로젝트 이름
-Bookshelf (책장)
-<br /><br />
-
-## 소개
-블로그 + 실시간 채팅 + 도서와 커뮤니티 기능이 있는 서비스
+# Bookshelf (책장)
+블로그 + 실시간 채팅 + 도서와 커뮤니티 기능이 있는 서비스 + jazz 변환기
 <br /><br />
 
 ## 주요 기능
@@ -46,27 +42,45 @@ asgi.py : 웹소켓 요청을 받으면 호스트 검증 -> routing.py로 전달
 
 routing.py : websocket용 urls.py, 요청 url을 consumer로 연결시킵니다. (연결을 처리할 consumer을 선택)
 
-consumers.py : websocket 연결 후 실시간 메시지를 처리합니다.
+consumers.py : websocket 연결 후 실시간 메시지를 처리합니다.<br />
     connect(self) : 요청에서 slug 값을 빼내어 채널 그룹에 참가합니다. 
-        각 사용자는 (웹소켓에) channel name을 독립적으로 가지고, group name으로 채널에 참여합니다.
-    receive(self, text_data) : 인자의 문자열을 딕셔너리로 반환 후 이벤트명과 함께 그룹에 전송합니다.
-    chat_message(self, event) : 채팅방의 클라이언트에게 json 문자열을 전송합니다.
+        각 사용자는 (웹소켓에) channel name을 독립적으로 가지고, group name으로 채널에 참여합니다.<br />
+    receive(self, text_data) : 인자의 문자열을 딕셔너리로 반환 후 이벤트명과 함께 그룹에 전송합니다.<br />
+    chat_message(self, event) : 채팅방의 클라이언트에게 json 문자열을 전송합니다.<br />
     save_message(self, author, content) : 채팅방에 메시지를 DB에 저장하고 사용자 이미지를 반환합니다.
-                                            @database_sync_to_async로 ORM 명령을 비동기 환경에서 사용 
+                                            @database_sync_to_async로 ORM 명령을 비동기 환경에서 사용<br /> 
     views.py : slug를 확인하고 웹 페이지를 렌더링하는 역할만 수행합니다.
 
 <img src="imgsForReadme/chat.png" width="700" alt="채팅 화면">
 
 - library 앱
-clients.py : api 요청을 보내고 응답을 받아 딕셔너리 형태로 반환합니다.
+clients.py : api 요청을 보내고 응답을 받아 딕셔너리 형태로 반환합니다.<br />
     search_books(...) : 도서 검색 시 api 요청을 보내 데이터를 받아옵니다. (알라딘 사용 예제)
-                        api 응답은 네트워크에서 byte로 오기 때문에 디코딩하여 문자열로 변환이 필요합니다.
+                        - api 응답은 네트워크에서 byte로 오기 때문에 디코딩하여 문자열로 변환이 필요합니다.<br />
 
 services.py : clients.py에서 도서 데이터를 받아 Book 모델에 저장합니다.
-    normalize_book_data(data) : isbn, 작가 정보를 가져와 도서 정보가 담긴 딕셔너리를 반환합니다.
-    save_book_from_api_data(data) : 도서 데이터를 받아 생성하거나 정보를 갱신하여 저장 후 반환합니다.
+    - normalize_book_data(data) : isbn, 작가 정보를 가져와 도서 정보가 담긴 딕셔너리를 반환합니다.
+    - save_book_from_api_data(data) : 도서 데이터를 받아 생성하거나 정보를 갱신하여 저장 후 반환합니다.
 
 <img src="imgsForReadme/book.png" width="700" alt="도서 화면">
+
+
+- jazz 앱
+Bookshelf/init.py : django 프로젝트 로딩 시 Celery 앱도 함께 로딩<br />
+celery.py : Celery 앱을 만드는 설정 파일<br />
+tasks.py : 백그라운드에서 실행할 함수를 정의합니다.
+    비동기로 실행 시, Redis에 작업 메시지가 들어갑니다.<br />
+
+- 비동기 작업 큐 파이프라인
+view -> redis 로 task 메시지 전송<br />
+celery worker가 redis 큐(redis broker)를 계속 감시하며 task 작업을 수행<br />
+
+```bash
+brew services start redis ## 1. redis 실행, stop로 종료가능
+redis-cli ping ## 1.1 redis 실행 상태 확인
+celery -A Bookshelf worker -l info ## 2. Celery worker 실행
+python manage.py runserver ## 3. django 실행
+```
 
 <br /><br />
 ## 보완할 내용

@@ -3,7 +3,8 @@ from django.views.decorators.http import require_POST
 
 from jazz.forms import JazzForm
 from jazz.models import AudioTransformJob
-from jazz.services import transformToJazz, set_duration, mix_jazz_loop, analyze_bpm
+from jazz.services import set_duration, mix_jazz_loop, analyze_bpm
+from jazz.tasks import transform_jazz_task
 
 
 # Create your views here.
@@ -32,10 +33,10 @@ def jazz_detail(request, id):
 @require_POST
 def jazz_transform(request, id):
     jazz = AudioTransformJob.objects.get(id=id)
-    # result = transformToJazz(jazz)  # 변환
     jazz.style = request.POST.get("style", jazz.style)
-    jazz.save(update_fields=["style"])
+    jazz.status = "processing"
+    jazz.save(update_fields=["style", "status"])
 
-    mix_jazz_loop(jazz)
-    return redirect(f'/jazz/{id}')
-
+    # mix_jazz_loop(jazz)
+    transform_jazz_task.delay(jazz.id) # redis의 작업 큐에 작업 메시지 삽입
+    return redirect('jazz:jazz_detail', id=id) # trailing slash
