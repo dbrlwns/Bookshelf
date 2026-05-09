@@ -87,6 +87,9 @@ python manage.py runserver ## 3. django 실행
 - 비밀번호 암호화 커스텀
 - 블로그 좋아요 기능
 - 도서 기록 추천 알고리즘
+- Demucs와 ffmpeg로 보컬 분리, 4 stem separation 진행 했으나, 
+    작업 결과물이 부자연 스러운 경우가 대다수여서 musicgen으로 생성 테스트
+    새로 생성하니 전혀 다른 곡이 되어서 MusicGen melody conditioning 테스트
 
 <br /><br />
 ## 실행 방법

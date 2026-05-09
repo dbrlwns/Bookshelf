@@ -2,6 +2,7 @@ from celery import shared_task
 
 from jazz.models import AudioTransformJob
 from jazz.services import mix_jazz_loop
+from jazz.services2 import transform_soft_piano_jazz
 
 
 """
@@ -16,4 +17,4 @@ from jazz.services import mix_jazz_loop
 @shared_task
 def transform_jazz_task(jazz_id):
     jazz = AudioTransformJob.objects.get(id=jazz_id)
-    mix_jazz_loop(jazz)
+    transform_soft_piano_jazz(jazz)

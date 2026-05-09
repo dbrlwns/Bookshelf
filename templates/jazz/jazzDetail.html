@@ -54,6 +54,24 @@
     font-weight: 700;
   }
 
+  .meta-chip.is-processing {
+    border-color: rgba(var(--bs-warning-rgb), 0.5);
+    color: var(--bs-warning-text-emphasis);
+    background: rgba(var(--bs-warning-rgb), 0.12);
+  }
+
+  .meta-chip.is-completed {
+    border-color: rgba(var(--bs-success-rgb), 0.45);
+    color: var(--bs-success-text-emphasis);
+    background: rgba(var(--bs-success-rgb), 0.1);
+  }
+
+  .meta-chip.is-failed {
+    border-color: rgba(var(--bs-danger-rgb), 0.4);
+    color: var(--bs-danger-text-emphasis);
+    background: rgba(var(--bs-danger-rgb), 0.08);
+  }
+
   .workspace-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
@@ -108,10 +126,6 @@
     margin-bottom: 1rem;
   }
 
-  .style-option {
-    position: relative;
-  }
-
   .style-option input {
     position: absolute;
     opacity: 0;
@@ -121,9 +135,10 @@
   .style-option span {
     display: block;
     padding: 0.75rem 0.85rem;
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.7);
     border-radius: 8px;
-    cursor: pointer;
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    color: #2457a7;
     font-weight: 800;
   }
 
@@ -134,14 +149,15 @@
     font-weight: 500;
   }
 
-  .style-option input:checked + span {
-    border-color: rgba(var(--bs-primary-rgb), 0.7);
-    background: rgba(var(--bs-primary-rgb), 0.08);
-    color: #2457a7;
-  }
-
   .result-audio {
     width: 100%;
+  }
+
+  .empty-result {
+    margin-top: 1rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.92rem;
+    font-weight: 650;
   }
 
   .error-box {
@@ -177,7 +193,7 @@
 
   <h3 class="track-title">{{ jazz.original_file.name }}</h3>
   <div class="track-meta">
-    <span class="meta-chip">{{ jazz.status }}</span>
+    <span id="job-status" class="meta-chip is-{{ jazz.status }}">{{ jazz.status }}</span>
     <span class="meta-chip">{{ jazz.duration|floatformat:1 }}초</span>
     {% if jazz.bpm %}
       <span class="meta-chip">{{ jazz.bpm|floatformat:1 }} BPM</span>
@@ -208,20 +224,13 @@
       <div class="panel-title">변환 스타일</div>
       <form method="post" action="{% url 'jazz:jazz_transform' jazz.id %}">
         {% csrf_token %}
+        <input type="hidden" name="style" value="soft_piano">
         <div class="style-options">
           <label class="style-option">
-            <input type="radio" name="style" value="swing" {% if jazz.style == "swing" %}checked{% endif %}>
+            <input type="radio" checked disabled>
             <span>
-              Swing
-              <small>빠르고 클래식한 재즈 클럽 무드</small>
-            </span>
-          </label>
-
-          <label class="style-option">
-            <input type="radio" name="style" value="lofi" {% if jazz.style == "lofi" %}checked{% endif %}>
-            <span>
-              Lo-fi Jazz
-              <small>느슨하고 따뜻한 애니/작업용 무드</small>
+              Soft Piano Jazz
+              <small>보컬을 제거한 반주에 피아노 재즈 무드</small>
             </span>
           </label>
         </div>
@@ -232,15 +241,21 @@
         </button>
       </form>
 
-      {% if jazz.result_file %}
+      <div id="result-panel" {% if not jazz.result_file %}hidden{% endif %}>
         <hr>
         <div class="panel-title">변환 결과</div>
-        <audio class="result-audio" controls src="{{ jazz.result_file.url }}"></audio>
-      {% endif %}
+        <audio id="result-audio" class="result-audio" controls {% if jazz.result_file %}src="{{ jazz.result_file.url }}"{% endif %}></audio>
+      </div>
 
-      {% if jazz.error_message %}
-        <div class="error-box">{{ jazz.error_message }}</div>
-      {% endif %}
+      <div id="pending-result" class="empty-result" {% if jazz.result_file %}hidden{% endif %}>
+        {% if jazz.status == "processing" %}
+          변환 작업이 진행 중입니다.
+        {% else %}
+          아직 변환 결과가 없습니다.
+        {% endif %}
+      </div>
+
+      <div id="error-box" class="error-box" {% if not jazz.error_message %}hidden{% endif %}>{{ jazz.error_message }}</div>
     </aside>
   </div>
 </div>
@@ -289,5 +304,62 @@
       wavesurfer.zoom(event.target.valueAsNumber)
     })
   })
+
+  const statusUrl = '{% url "jazz:jazz_status" jazz.id %}'
+  const statusChip = document.querySelector('#job-status')
+  const resultPanel = document.querySelector('#result-panel')
+  const resultAudio = document.querySelector('#result-audio')
+  const pendingResult = document.querySelector('#pending-result')
+  const errorBox = document.querySelector('#error-box')
+
+  const updateStatusChip = (status) => {
+    statusChip.textContent = status
+    statusChip.classList.remove('is-pending', 'is-processing', 'is-completed', 'is-failed')
+    statusChip.classList.add(`is-${status}`)
+  }
+
+  const showResult = (resultUrl) => {
+    if (!resultUrl) return
+    resultAudio.src = resultUrl
+    resultPanel.hidden = false
+    pendingResult.hidden = true
+  }
+
+  const showError = (message) => {
+    if (!message) return
+    errorBox.textContent = message
+    errorBox.hidden = false
+    pendingResult.hidden = true
+  }
+
+  const pollJobStatus = async () => {
+    try {
+      const response = await fetch(statusUrl, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      })
+      if (!response.ok) return
+
+      const data = await response.json()
+      updateStatusChip(data.status)
+
+      if (data.status === 'completed') {
+        showResult(data.result_url)
+        window.clearInterval(statusTimer)
+      }
+
+      if (data.status === 'failed') {
+        showError(data.error_message || '변환 작업에 실패했습니다.')
+        window.clearInterval(statusTimer)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  let statusTimer = null
+  if (statusChip.textContent.trim() === 'processing') {
+    statusTimer = window.setInterval(pollJobStatus, 3000)
+    pollJobStatus()
+  }
 </script>
 {% endblock %}

@@ -110,6 +110,21 @@
     text-transform: uppercase;
   }
 
+  .status-pill.is-completed {
+    background: rgba(var(--bs-success-rgb), 0.12);
+    color: var(--bs-success-text-emphasis);
+  }
+
+  .status-pill.is-processing {
+    background: rgba(var(--bs-warning-rgb), 0.14);
+    color: var(--bs-warning-text-emphasis);
+  }
+
+  .status-pill.is-failed {
+    background: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger-text-emphasis);
+  }
+
   .empty-state {
     margin-top: 1.5rem;
     padding: 2rem 1rem;
@@ -164,7 +179,7 @@
             <span>{{ work.style }}</span>
           </div>
         </div>
-        <span class="status-pill">{{ work.status }}</span>
+        <span class="status-pill is-{{ work.status }}">{{ work.status }}</span>
       </a>
     {% empty %}
       <div class="empty-state">아직 작업이 없습니다. 첫 mp3 파일을 올려보세요.</div>

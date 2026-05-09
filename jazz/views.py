@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
@@ -40,3 +41,13 @@ def jazz_transform(request, id):
     # mix_jazz_loop(jazz)
     transform_jazz_task.delay(jazz.id) # redis의 작업 큐에 작업 메시지 삽입
     return redirect('jazz:jazz_detail', id=id) # trailing slash
+
+
+def jazz_status(request, id):
+    jazz = AudioTransformJob.objects.get(id=id)
+    return JsonResponse({
+        "status": jazz.status,
+        "style": jazz.style,
+        "result_url": jazz.result_file.url if jazz.result_file else "",
+        "error_message": jazz.error_message,
+    })
